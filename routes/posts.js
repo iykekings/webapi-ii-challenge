@@ -20,7 +20,7 @@ postsRouter.get('/:id', async (req, res) => {
   try {
     const post = await PostsDB.findById(id);
     if (post.length) {
-      res.status(200).json(post);
+      res.status(200).json(post[0]);
     } else {
       res.status(404).json({ message: 'The post with the specified ID does not exist.' });
     }
@@ -34,7 +34,7 @@ postsRouter.get('/:id/comments', async (req, res) => {
   try {
     const comments = await PostsDB.findPostComments(id);
     const post = await PostsDB.findById(id);
-    if (Object.keys(post).length) {
+    if (Object.keys(post[0]).length) {
       res.status(200).json(comments);
     } else {
       res.status(404).json({ message: 'The post with the specified ID does not exist.' });
@@ -47,10 +47,10 @@ postsRouter.get('/:id/comments', async (req, res) => {
 postsRouter.delete('/:id', async (req, res) => {
   const { id } = req.params;
   const toBeDeleted = await PostsDB.findById(id);
-  if (Object.keys(toBeDeleted).length) {
+  if (Object.keys(toBeDeleted[0]).length) {
     try {
       await PostsDB.remove(id);
-      res.status(200).json(toBeDeleted);
+      res.status(200).json(toBeDeleted[0]);
     } catch (error) {
       res.status(500).json({ error: 'The post could not be removed' });
     }
@@ -92,6 +92,27 @@ postsRouter.post('/:id/comments', async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: 'There was an error while saving the comment to the database' });
+  }
+});
+
+postsRouter.put('/:id', async (req, res) => {
+  const { title, contents } = req.body;
+  const { id } = req.params;
+  try {
+    const postToUpdate = await PostsDB.findById(id);
+    if (Object.keys(postToUpdate[0]).length) {
+      if (title && contents) {
+        const post = await PostsDB.update(id, { title, contents });
+        const updatedPost = await PostsDB.findById(post.id);
+        res.status(201).json(updatedPost[0]);
+      } else {
+        res.status(400).json({ errorMessage: 'Please provide title and contents for the post.' });
+      }
+    } else {
+      res.status(404).json({ message: 'The post with the specified ID does not exist.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'The post information could not be modified.' });
   }
 });
 
