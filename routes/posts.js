@@ -28,4 +28,19 @@ postsRouter.get('/:id', async (req, res) => {
   }
 });
 
+postsRouter.get('/:id/comments', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const comments = await PostsDB.findPostComments(id);
+    const post = await PostsDB.findById(id);
+    if (Object.keys(post).length) {
+      res.status(200).json(comments);
+    } else {
+      res.status(404).json({ message: 'The post with the specified ID does not exist.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'The comments information could not be retrieved.' });
+  }
+});
+
 module.exports = postsRouter;
