@@ -8,11 +8,23 @@ postsRouter.get('/', async (req, res) => {
     const posts = await PostsDB.find();
     if (posts.length) {
       res.status(200).json(posts);
-    } else {
-      res.status(404).json({ error: 'posts not found' });
     }
   } catch (error) {
-    res.status(500).json({ errorMessage: "Couldn't fetch posts" });
+    res.status(500).json({ error: 'The posts information could not be retrieved.' });
+  }
+});
+
+postsRouter.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await PostsDB.findById(id);
+    if (post) {
+      res.status(200).json(post);
+    } else {
+      res.status(404).json({ message: 'The post with the specified ID does not exist.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'The post could not be retrieved.' });
   }
 });
 
