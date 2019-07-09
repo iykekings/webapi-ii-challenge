@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const express = require('express');
 const PostsDB = require('../data/db');
 
@@ -72,4 +73,26 @@ postsRouter.post('/', async (req, res) => {
     res.status(400).json({ errorMessage: 'Please provide title and contents for the post.' });
   }
 });
+
+postsRouter.post('/:id/comments', async (req, res) => {
+  const { text } = req.body;
+  const { id } = req.params;
+  try {
+    const targetPost = await PostsDB.findById(id);
+    if (targetPost.length) {
+      if (text && id) {
+        const newComment = await PostsDB.insertComment({ text, post_id: id });
+        const addedComment = await PostsDB.findCommentById(newComment.id);
+        res.status(201).json(addedComment[0]);
+      } else {
+        res.status(400).json({ errorMessage: 'Please provide text and post_id for the post.' });
+      }
+    } else {
+      res.status(404).json({ message: 'The post with the specified ID does not exist.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'There was an error while saving the comment to the database' });
+  }
+});
+
 module.exports = postsRouter;
