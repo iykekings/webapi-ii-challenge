@@ -3,6 +3,7 @@ const cors = require('cors');
 const postsRouter = require('./routes/posts');
 
 const server = express();
+const PORT = process.env.PORT || 4000;
 
 server.use(express.json());
 server.use(cors());
@@ -13,6 +14,6 @@ server.get('/', (req, res) => {
 
 server.use('/posts', postsRouter);
 
-server.listen(4000, () => {
+server.listen(PORT, () => {
   console.log('Server running at http://localhost:4000');
 });
